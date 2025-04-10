@@ -4,13 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Chat
-import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,6 +25,13 @@ import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import com.example.assignment.components.SavingsAdviceDialog
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.ImageVector
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,126 +49,288 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Financial Overview", fontSize = 20.sp, fontWeight = FontWeight.Bold) },
+                title = { 
+                    Column {
+                        Text(
+                            "Financial Overview",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Text(
+                            "Track your monthly finances",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 actions = {
-                    IconButton(onClick = { viewModel.showSavingsAdviceDialog() }) {
-                        Icon(
-                            Icons.Default.Lightbulb,
-                            contentDescription = "Savings Advice",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    IconButton(onClick = { viewModel.showShareDialog() }) {
-                        Icon(Icons.Default.Share, contentDescription = "Share")
-                    }
-                    TextButton(
-                        onClick = { viewModel.showStartNewMonthDialog() },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Start New Month")
+                        IconButton(
+                            onClick = { viewModel.showSavingsAdviceDialog() },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        ) {
+                            Icon(
+                                Icons.Default.Lightbulb,
+                                contentDescription = "Savings Advice"
+                            )
+                        }
+                        IconButton(
+                            onClick = { viewModel.showShareDialog() },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        ) {
+                            Icon(Icons.Default.Share, contentDescription = "Share")
+                        }
+                        Button(
+                            onClick = { viewModel.showStartNewMonthDialog() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Refresh,
+                                    contentDescription = "Start New Month",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text("New Month")
+                            }
+                        }
                     }
                 }
             )
-        },
-        floatingActionButton = {
-            Row {
-                FloatingActionButton(
-                    onClick = { viewModel.showAddIncomeDialog() },
-                    modifier = Modifier.padding(end = 8.dp),
-                    containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Income")
-                }
-                FloatingActionButton(
-                    onClick = { viewModel.showAddExpenseDialog() },
-                    modifier = Modifier.padding(end = 8.dp),
-                    containerColor = MaterialTheme.colorScheme.error
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Expense")
-                }
-                FloatingActionButton(
-                    onClick = { viewModel.showAddToSavingsDialog() },
-                    containerColor = MaterialTheme.colorScheme.secondary
-                ) {
-                    Icon(Icons.Default.Savings, contentDescription = "Add to Savings")
-                }
-            }
         }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 80.dp)
+                .padding(16.dp)
+                .background(MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Text(
-                    "Welcome to Finance Tracker",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    "Easily manage your personal finances",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            item {
-                FinanceCard(
-                    title = "Monthly Income",
-                    amount = "$${String.format("%.2f", totalIncome)}",
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            item {
-                FinanceCard(
-                    title = "Monthly Expenses",
-                    amount = "$${String.format("%.2f", totalExpense)}",
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            item {
-                FinanceCard(
-                    title = "Monthly Remaining",
-                    amount = "$${String.format("%.2f", remainingAmount)}",
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            item {
-                Text(
-                    "Budget Allocation",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                BudgetChart(
-                    categories = expenseCategories.filter { it.first != "Remaining" }
-                )
-            }
-
-            item {
-                Text(
-                    "Recent Transactions",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            items(uiState.transactions) { transaction ->
-                TransactionItem(
-                    transaction = transaction,
-                    onDelete = {
-                        viewModel.deleteTransaction(transaction)
+                // Welcome Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            "Welcome Back!",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            "Track your finances and achieve your goals",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
                     }
-                )
+                }
+            }
+
+            item {
+                // Financial Summary Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 4.dp
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text(
+                            "Monthly Summary",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            FinanceSummaryItem(
+                                title = "Income",
+                                amount = totalIncome,
+                                icon = Icons.Default.TrendingUp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            FinanceSummaryItem(
+                                title = "Expenses",
+                                amount = totalExpense,
+                                icon = Icons.Default.TrendingDown,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            FinanceSummaryItem(
+                                title = "Remaining",
+                                amount = remainingAmount,
+                                icon = Icons.Default.AccountBalance,
+                                color = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
+                    }
+                }
+            }
+
+            item {
+                // Budget Allocation Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 2.dp
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text(
+                            "Budget Allocation",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        BudgetChart(
+                            categories = expenseCategories,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                        )
+                    }
+                }
+            }
+
+            item {
+                // Recent Transactions Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 2.dp
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "Recent Transactions",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        if (uiState.transactions.isEmpty()) {
+                            Text(
+                                "No transactions yet",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(vertical = 16.dp)
+                            )
+                        } else {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                uiState.transactions.take(5).forEach { transaction ->
+                                    TransactionItem(transaction = transaction)
+                                }
+                            }
+                        }
+
+                        // 添加交易按钮
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Button(
+                                onClick = { viewModel.showAddIncomeDialog() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary
+                                ),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Add,
+                                        contentDescription = "Add Income",
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Text("Add Income")
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Button(
+                                onClick = { viewModel.showAddExpenseDialog() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error
+                                ),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Remove,
+                                        contentDescription = "Add Expense",
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Text("Add Expense")
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -414,7 +577,7 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        "Monthly Remaining Amount: $${String.format("%.2f", remainingAmount)}",
+                        "Monthly Remaining Amount: ${uiState.currency}${String.format("%.2f", remainingAmount)}",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -436,12 +599,12 @@ fun HomeScreen(
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                                 Text(
-                                    text = "Target: $${String.format("%.2f", goal.targetAmount)}",
+                                    text = "Target: ${uiState.currency}${String.format("%.2f", goal.targetAmount)}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
-                                    text = "Current: $${String.format("%.2f", goal.currentAmount)}",
+                                    text = "Current: ${uiState.currency}${String.format("%.2f", goal.currentAmount)}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -550,6 +713,37 @@ fun HomeScreen(
                     Text("Cancel")
                 }
             }
+        )
+    }
+}
+
+@Composable
+fun FinanceSummaryItem(
+    title: String,
+    amount: Float,
+    icon: ImageVector,
+    color: Color
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = color,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "$${String.format("%.2f", amount)}",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = color
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 } 

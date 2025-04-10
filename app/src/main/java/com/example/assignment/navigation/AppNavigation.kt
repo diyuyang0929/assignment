@@ -18,6 +18,9 @@ import com.example.assignment.api.SavingsApi
 import com.example.assignment.viewmodels.HomeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
+import com.example.assignment.viewmodels.SettingsViewModel
+import com.example.assignment.viewmodels.SettingsViewModelFactory
+import com.example.assignment.api.RoomApi
 
 @Composable
 fun AppNavigation() {
@@ -71,8 +74,11 @@ fun AppNavigation() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("home") {
+                val settingsViewModel: SettingsViewModel = viewModel(
+                    factory = SettingsViewModelFactory(RoomApi(context), context)
+                )
                 val homeViewModel: HomeViewModel = viewModel(
-                    factory = HomeViewModel.Factory(savingsApi, context)
+                    factory = HomeViewModel.Factory(savingsApi, context, settingsViewModel)
                 )
                 HomeScreen(
                     viewModel = homeViewModel,
@@ -85,7 +91,10 @@ fun AppNavigation() {
                 )
             }
             composable("settings") {
-                SettingsScreen()
+                val settingsViewModel: SettingsViewModel = viewModel(
+                    factory = SettingsViewModelFactory(RoomApi(context), context)
+                )
+                SettingsScreen(viewModel = settingsViewModel)
             }
         }
     }

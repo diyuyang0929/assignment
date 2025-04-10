@@ -4,10 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -24,6 +21,14 @@ import androidx.compose.ui.graphics.Color
 import com.example.assignment.api.SavingsApi
 import com.example.assignment.api.SavingsStatistics
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.ImageVector
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,11 +57,25 @@ fun SavingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Savings Goals", fontSize = 20.sp, fontWeight = FontWeight.Bold) }
+                title = { 
+                    Text(
+                        "Savings Goals",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddGoalDialog = true }) {
+            FloatingActionButton(
+                onClick = { showAddGoalDialog = true },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Savings Goal")
             }
         }
@@ -69,42 +88,119 @@ fun SavingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Text(
-                    "Your Savings Goals",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    "Track your savings progress",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                // Welcome Section
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            "Your Savings Journey",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Text(
+                            "Track and achieve your financial goals",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
 
             statistics?.let { stats ->
                 item {
+                    // Statistics Card
                     Card(
                         modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 2.dp
                         )
                     ) {
                         Column(
                             modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Text(
-                                "Overall Statistics",
-                                fontSize = 18.sp,
+                                "Overall Progress",
+                                style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
-                            Text("Total Target Amount: $${String.format("%.2f", stats.totalTargetAmount)}")
-                            Text("Total Current Amount: $${String.format("%.2f", stats.totalCurrentAmount)}")
-                            Text("Average Progress: ${String.format("%.1f", stats.averageProgress)}%")
-                            Text("Number of Savings Goals: ${stats.totalGoals}")
+                            
+                            // Progress Circle
+                            Box(
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .align(Alignment.CenterHorizontally)
+                            ) {
+                                CircularProgressIndicator(
+                                    progress = stats.averageProgress / 100f,
+                                    modifier = Modifier.fillMaxSize(),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    strokeWidth = 12.dp,
+                                    strokeCap = StrokeCap.Round
+                                )
+                                Column(
+                                    modifier = Modifier.align(Alignment.Center),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        "${String.format("%.1f", stats.averageProgress)}%",
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        "Average Progress",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                StatItem(
+                                    title = "Total Goals",
+                                    value = stats.totalGoals.toString(),
+                                    icon = Icons.Default.Flag
+                                )
+                                StatItem(
+                                    title = "Total Target",
+                                    value = "$${String.format("%.2f", stats.totalTargetAmount)}",
+                                    icon = Icons.Default.AttachMoney
+                                )
+                                StatItem(
+                                    title = "Total Saved",
+                                    value = "$${String.format("%.2f", stats.totalCurrentAmount)}",
+                                    icon = Icons.Default.Savings
+                                )
+                            }
                         }
                     }
                 }
+            }
+
+            item {
+                Text(
+                    "Your Goals",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
             }
 
             items(savingsGoals) { goal ->
@@ -118,10 +214,10 @@ fun SavingsScreen(
                         scope.launch {
                             savingsApi.updateSavingsProgress(goal.id, amount)
                                 .onSuccess {
-                                    Toast.makeText(context, "Update successful", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Progress updated successfully", Toast.LENGTH_SHORT).show()
                                 }
                                 .onFailure { e ->
-                                    Toast.makeText(context, "Update failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Failed to update progress: ${e.message}", Toast.LENGTH_SHORT).show()
                                 }
                         }
                     },
@@ -129,10 +225,10 @@ fun SavingsScreen(
                         scope.launch {
                             savingsApi.deleteSavingsGoal(goal.id)
                                 .onSuccess {
-                                    Toast.makeText(context, "Delete successful", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Goal deleted successfully", Toast.LENGTH_SHORT).show()
                                 }
                                 .onFailure { e ->
-                                    Toast.makeText(context, "Delete failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Failed to delete goal: ${e.message}", Toast.LENGTH_SHORT).show()
                                 }
                         }
                     }
@@ -141,165 +237,197 @@ fun SavingsScreen(
         }
     }
 
+    // Add Goal Dialog
     if (showAddGoalDialog) {
         var name by remember { mutableStateOf("") }
         var amount by remember { mutableStateOf("") }
 
         AlertDialog(
             onDismissRequest = { showAddGoalDialog = false },
-            title = { Text("Add Savings Goal") },
+            title = { 
+                Text(
+                    "Add New Goal",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            },
             text = {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
                         label = { Text("Goal Name") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     )
                     OutlinedTextField(
                         value = amount,
                         onValueChange = { amount = it },
                         label = { Text("Target Amount") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     )
                 }
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
                         if (name.isNotBlank() && amount.isNotBlank()) {
                             scope.launch {
                                 savingsApi.addSavingsGoal(name, amount.toFloatOrNull() ?: 0f)
                                     .onSuccess {
                                         showAddGoalDialog = false
-                                        Toast.makeText(context, "Added successfully", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Goal added successfully", Toast.LENGTH_SHORT).show()
                                     }
                                     .onFailure { e ->
-                                        Toast.makeText(context, "Add failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Failed to add goal: ${e.message}", Toast.LENGTH_SHORT).show()
                                     }
                             }
                         }
-                    }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
-                    Text("Add")
+                    Text("Add Goal")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showAddGoalDialog = false }) {
+                TextButton(
+                    onClick = { showAddGoalDialog = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
                     Text("Cancel")
                 }
             }
         )
     }
 
-    if (showShareDialog && selectedGoal != null) {
-        var selectedPlatform by remember { mutableStateOf<String?>(null) }
-        val context = LocalContext.current
+    // Share Dialog
+    if (showShareDialog) {
+        var selectedPlatform by remember { mutableStateOf("") }
+        val goal = selectedGoal!!
 
         AlertDialog(
             onDismissRequest = { showShareDialog = false },
-            title = { Text("Share Savings Goal") },
+            title = { 
+                Text(
+                    "Share Progress",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            },
             text = {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    ListItem(
-                        headlineContent = { Text("Share to WeChat") },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Default.Send,
-                                contentDescription = "WeChat",
-                                tint = Color(0xFF07C160)
-                            )
-                        },
-                        modifier = Modifier.clickable { selectedPlatform = "wechat" }
+                    Text(
+                        "Share your savings progress with others",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    ListItem(
-                        headlineContent = { Text("Share to WhatsApp") },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Default.Chat,
-                                contentDescription = "WhatsApp",
-                                tint = Color(0xFF25D366)
-                            )
-                        },
-                        modifier = Modifier.clickable { selectedPlatform = "whatsapp" }
-                    )
-                    ListItem(
-                        headlineContent = { Text("Other Applications") },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Default.Share,
-                                contentDescription = "Other Applications",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        modifier = Modifier.clickable { selectedPlatform = "other" }
-                    )
+                    
+                    // Share options
+                    listOf(
+                        "WhatsApp" to Icons.Default.Chat,
+                        "Messenger" to Icons.Default.Send,
+                        "Other Apps" to Icons.Default.Share
+                    ).forEach { (platform, icon) ->
+                        ListItem(
+                            headlineContent = { Text(platform) },
+                            leadingContent = {
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = platform,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            },
+                            modifier = Modifier
+                                .clickable { selectedPlatform = platform }
+                                .background(
+                                    if (selectedPlatform == platform) 
+                                        MaterialTheme.colorScheme.primaryContainer 
+                                    else 
+                                        MaterialTheme.colorScheme.surface,
+                                    RoundedCornerShape(8.dp)
+                                )
+                                .padding(8.dp)
+                        )
+                    }
                 }
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
-                        val goal = selectedGoal!!
                         val progress = (goal.currentAmount / goal.targetAmount * 100).toInt()
                         val shareText = """
-                            Savings Goal: ${goal.name}
-                            Target Amount: $${String.format("%.2f", goal.targetAmount)}
-                            Current Progress: $${String.format("%.2f", goal.currentAmount)}
-                            Completion Progress: ${progress}%
+                            🎯 Savings Goal: ${goal.name}
+                            💰 Target Amount: $${String.format("%.2f", goal.targetAmount)}
+                            💵 Current Progress: $${String.format("%.2f", goal.currentAmount)}
+                            📈 Completion: ${progress}%
                         """.trimIndent()
 
-                        when (selectedPlatform) {
-                            "wechat" -> {
-                                val intent = Intent()
-                                intent.action = Intent.ACTION_SEND
-                                intent.putExtra(Intent.EXTRA_TEXT, shareText)
-                                intent.type = "text/plain"
-                                intent.setPackage("com.tencent.mm")
-
-                                try {
-                                    context.startActivity(intent)
-                                } catch (e: Exception) {
-                                    Toast.makeText(context, "WeChat not installed", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                            "whatsapp" -> {
-                                val intent = Intent()
-                                intent.action = Intent.ACTION_SEND
-                                intent.putExtra(Intent.EXTRA_TEXT, shareText)
-                                intent.type = "text/plain"
-                                intent.setPackage("com.whatsapp")
-
-                                try {
-                                    context.startActivity(intent)
-                                } catch (e: Exception) {
-                                    Toast.makeText(context, "WhatsApp not installed", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                            "other" -> {
-                                val intent = Intent()
-                                intent.action = Intent.ACTION_SEND
-                                intent.putExtra(Intent.EXTRA_TEXT, shareText)
-                                intent.type = "text/plain"
-                                context.startActivity(Intent.createChooser(intent, "Share to"))
-                            }
+                        val intent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, shareText)
                         }
+                        context.startActivity(Intent.createChooser(intent, "Share via"))
                         showShareDialog = false
-                    }
+                    },
+                    enabled = selectedPlatform.isNotEmpty(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
                     Text("Share")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showShareDialog = false }) {
+                TextButton(
+                    onClick = { showShareDialog = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
                     Text("Cancel")
                 }
             }
+        )
+    }
+}
+
+@Composable
+fun StatItem(
+    title: String,
+    value: String,
+    icon: ImageVector
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 } 

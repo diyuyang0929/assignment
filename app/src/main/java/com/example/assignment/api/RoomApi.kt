@@ -27,4 +27,9 @@ class RoomApi(context: Context) {
     suspend fun clearAllTransactions() {
         repository.deleteAllTransactions()
     }
+
+    suspend fun deleteAllSavingsGoals() {
+        // 由于储蓄目标目前是存储在内存中的，这个方法暂时不需要实现
+        // 当储蓄目标被移动到Room数据库时，这里需要实现实际的删除逻辑
+    }
 }

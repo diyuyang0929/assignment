@@ -14,6 +14,7 @@ import com.example.assignment.utils.SavingsTip
 import com.example.assignment.utils.SpendingAnalyzer
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 data class HomeUiState(
     val transactions: List<Transaction> = emptyList(),
@@ -27,12 +28,14 @@ data class HomeUiState(
     val savingsTips: List<SavingsTip> = emptyList(),
     val recommendedSavingsMethod: SavingsMethod? = null,
     val isLoadingAdvice: Boolean = false,
-    val networkError: String? = null
+    val networkError: String? = null,
+    val currency: String = "USD"
 )
 
 class HomeViewModel(
     private val savingsApi: SavingsApi,
-    private val roomApi: RoomApi
+    private val roomApi: RoomApi,
+    private val settingsViewModel: SettingsViewModel
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -90,6 +93,14 @@ class HomeViewModel(
                 updateSavingsAdvice(trans, income, expense)
             }
         }
+
+        // Listen to currency changes from SettingsViewModel
+        settingsViewModel.uiState
+            .map { it.currency }
+            .onEach { currency ->
+                _uiState.update { it.copy(currency = currency) }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun updateSavingsAdvice(
@@ -222,24 +233,34 @@ class HomeViewModel(
 
     fun startNewMonth() {
         viewModelScope.launch {
-            val remaining = remainingAmount.value
-            if (remaining > 0) {
-                val firstGoal = uiState.value.savingsGoals.firstOrNull()
-                if (firstGoal != null) {
-                    savingsApi.addSaving(firstGoal.id, remaining)
-                        .onSuccess {
-                            addTransaction(
-                                amount = remaining,
-                                description = "Monthly savings (${java.time.YearMonth.now().minusMonths(1)})",
-                                type = TransactionType.EXPENSE
-                            )
-                            roomApi.clearAllTransactions()
-                        }
+            try {
+                val remaining = remainingAmount.value
+                if (remaining > 0) {
+                    val firstGoal = uiState.value.savingsGoals.firstOrNull()
+                    if (firstGoal != null) {
+                        val transaction = Transaction(
+                            id = System.currentTimeMillis().toString(),
+                            amount = remaining,
+                            description = "Monthly savings (${java.time.YearMonth.now().minusMonths(1)})",
+                            date = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date()),
+                            type = TransactionType.EXPENSE
+                        )
+                        roomApi.addTransaction(transaction)
+                        
+                        savingsApi.addSaving(firstGoal.id, remaining).getOrThrow()
+                    }
                 }
-            } else {
+                
+                kotlinx.coroutines.delay(100)
+                
                 roomApi.clearAllTransactions()
+                
+                hideStartNewMonthDialog()
+            } catch (e: Exception) {
+                _uiState.update { 
+                    it.copy(networkError = "Failed to start new month: ${e.message}")
+                }
             }
-            hideStartNewMonthDialog()
         }
     }
 
@@ -255,12 +276,13 @@ class HomeViewModel(
 
     class Factory(
         private val savingsApi: SavingsApi,
-        private val context: Context
+        private val context: Context,
+        private val settingsViewModel: SettingsViewModel
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return HomeViewModel(savingsApi, RoomApi(context)) as T
+                return HomeViewModel(savingsApi, RoomApi(context), settingsViewModel) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
