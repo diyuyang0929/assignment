@@ -27,142 +27,149 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        // Header
-        Text(
-            text = "Settings",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-
-        // Appearance Settings Card
-        SettingsCard(
-            title = "Appearance Settings",
-            icon = Icons.Default.Palette
-        ) {
-            SettingsItem(
-                title = "Dark Mode",
-                icon = Icons.Default.DarkMode,
-                action = {
-                    Switch(
-                        checked = uiState.isDarkMode,
-                        onCheckedChange = { viewModel.toggleDarkMode() }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Settings",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Notification Settings Card
-        SettingsCard(
-            title = "Notification Settings",
-            icon = Icons.Default.Notifications
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            SettingsItem(
-                title = "Enable Notifications",
-                icon = Icons.Default.NotificationsActive,
-                action = {
-                    Switch(
-                        checked = uiState.notificationsEnabled,
-                        onCheckedChange = { viewModel.toggleNotifications() }
-                    )
-                }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Currency Settings Card
-        SettingsCard(
-            title = "Currency Settings",
-            icon = Icons.Default.AttachMoney
-        ) {
-            SettingsItem(
-                title = "Current Currency",
-                subtitle = uiState.currency,
-                icon = Icons.Default.CurrencyExchange,
-                action = {
-                    Button(
-                        onClick = { viewModel.showCurrencyDialog() },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
+            SettingsCard(
+                title = "Appearance Settings",
+                icon = Icons.Default.Palette
+            ) {
+                SettingsItem(
+                    title = "Dark Mode",
+                    icon = Icons.Default.DarkMode,
+                    action = {
+                        Switch(
+                            checked = uiState.isDarkMode,
+                            onCheckedChange = { viewModel.toggleDarkMode() }
                         )
-                    ) {
-                        Text("Change")
                     }
-                }
-            )
-        }
+                )
+            }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Data Management Card
-        SettingsCard(
-            title = "Data Management",
-            icon = Icons.Default.Storage
-        ) {
-            SettingsItem(
-                title = "Clear All Data",
-                icon = Icons.Default.Delete,
-                action = {
-                    Button(
-                        onClick = { viewModel.showClearDataDialog() },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error,
-                            contentColor = MaterialTheme.colorScheme.onError
+            SettingsCard(
+                title = "Notification Settings",
+                icon = Icons.Default.Notifications
+            ) {
+                SettingsItem(
+                    title = "Enable Notifications",
+                    icon = Icons.Default.NotificationsActive,
+                    action = {
+                        Switch(
+                            checked = uiState.notificationsEnabled,
+                            onCheckedChange = { viewModel.toggleNotifications() }
                         )
-                    ) {
-                        Text("Clear")
                     }
-                }
-            )
-            SettingsItem(
-                title = "Export Data",
-                icon = Icons.Default.FileDownload,
-                action = {
-                    Button(
-                        onClick = { viewModel.showExportDialog() },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                    ) {
-                        Text("Export")
-                    }
-                }
-            )
-        }
+                )
+            }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // About Card
-        SettingsCard(
-            title = "About",
-            icon = Icons.Default.Info
-        ) {
-            SettingsItem(
-                title = "App Information",
-                icon = Icons.Default.Apps,
-                action = {
-                    Button(
-                        onClick = { viewModel.showAboutDialog() },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                    ) {
-                        Text("View")
+            SettingsCard(
+                title = "Currency Settings",
+                icon = Icons.Default.AttachMoney
+            ) {
+                SettingsItem(
+                    title = "Current Currency",
+                    subtitle = uiState.currency,
+                    icon = Icons.Default.CurrencyExchange,
+                    action = {
+                        Button(
+                            onClick = { viewModel.showCurrencyDialog() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Text("Change")
+                        }
                     }
-                }
-            )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SettingsCard(
+                title = "Data Management",
+                icon = Icons.Default.Storage
+            ) {
+                SettingsItem(
+                    title = "Clear All Data",
+                    icon = Icons.Default.Delete,
+                    action = {
+                        Button(
+                            onClick = { viewModel.showClearDataDialog() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError
+                            )
+                        ) {
+                            Text("Clear")
+                        }
+                    }
+                )
+                SettingsItem(
+                    title = "Export Data",
+                    icon = Icons.Default.FileDownload,
+                    action = {
+                        Button(
+                            onClick = { viewModel.showExportDialog() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Text("Export")
+                        }
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SettingsCard(
+                title = "About",
+                icon = Icons.Default.Info
+            ) {
+                SettingsItem(
+                    title = "App Information",
+                    icon = Icons.Default.Apps,
+                    action = {
+                        Button(
+                            onClick = { viewModel.showAboutDialog() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Text("View")
+                        }
+                    }
+                )
+            }
         }
     }
 

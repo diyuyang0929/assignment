@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.assignment.viewmodels.SettingsViewModel
 import com.example.assignment.viewmodels.SettingsViewModelFactory
 import com.example.assignment.api.RoomApi
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun AppNavigation() {
@@ -31,10 +32,18 @@ fun AppNavigation() {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.AccountBalance, contentDescription = "Financial Overview") },
-                    label = { Text("Financial Overview") },
+                    icon = {
+                        Icon(
+                            Icons.Default.AccountBalance,
+                            contentDescription = "Financial Overview",
+                            tint = Color.Black
+                        )
+                    },
+                    label = { Text("Financial Overview", color = Color.Black) },
                     selected = selectedItem == 0,
                     onClick = {
                         selectedItem = 0
@@ -44,8 +53,14 @@ fun AppNavigation() {
                     }
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Savings, contentDescription = "Savings Goals") },
-                    label = { Text("Savings Goals") },
+                    icon = {
+                        Icon(
+                            Icons.Default.Savings,
+                            contentDescription = "Savings Goals",
+                            tint = Color.Black
+                        )
+                    },
+                    label = { Text("Savings Goals", color = Color.Black) },
                     selected = selectedItem == 1,
                     onClick = {
                         selectedItem = 1
@@ -55,8 +70,14 @@ fun AppNavigation() {
                     }
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                    label = { Text("Settings") },
+                    icon = {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            tint = Color.Black
+                        )
+                    },
+                    label = { Text("Settings", color = Color.Black) },
                     selected = selectedItem == 2,
                     onClick = {
                         selectedItem = 2
