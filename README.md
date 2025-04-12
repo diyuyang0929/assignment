@@ -1,3 +1,5 @@
+Feature of the application
+
 Overview of Finance:
 Display the user's total income, total expenditure and remaining amount.
 Provide a quick overview of the financial situation.
