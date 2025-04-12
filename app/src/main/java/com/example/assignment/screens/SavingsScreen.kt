@@ -10,18 +10,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.assignment.components.SavingsGoalCard
 import com.example.assignment.data.SavingsGoal
 import androidx.compose.foundation.clickable
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import com.example.assignment.api.SavingsApi
 import com.example.assignment.api.SavingsStatistics
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.StrokeCap
@@ -54,17 +57,16 @@ fun SavingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
+                title = { 
                     Text(
                         "Savings Goals",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         },
@@ -86,6 +88,7 @@ fun SavingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
+                // Welcome Section
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
@@ -115,6 +118,7 @@ fun SavingsScreen(
 
             statistics?.let { stats ->
                 item {
+                    // Statistics Card
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
@@ -134,7 +138,8 @@ fun SavingsScreen(
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
-
+                            
+                            // Progress Circle
                             Box(
                                 modifier = Modifier
                                     .size(120.dp)
@@ -232,6 +237,7 @@ fun SavingsScreen(
         }
     }
 
+    // Add Goal Dialog
     if (showAddGoalDialog) {
         var name by remember { mutableStateOf("") }
         var amount by remember { mutableStateOf("") }
@@ -302,6 +308,7 @@ fun SavingsScreen(
         )
     }
 
+    // Share Dialog
     if (showShareDialog) {
         var selectedPlatform by remember { mutableStateOf("") }
         val goal = selectedGoal!!
@@ -326,6 +333,7 @@ fun SavingsScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     
+                    // Share options
                     listOf(
                         "WhatsApp" to Icons.Default.Chat,
                         "Messenger" to Icons.Default.Send,
